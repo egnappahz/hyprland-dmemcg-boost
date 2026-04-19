@@ -1,5 +1,7 @@
 # hyprland-dmemcg-boost
 
+EDIT: this only works for regular apps, not for gaming. I'm still thinking about how to do this without gamescope and something more hyprland native!
+
 Hyprland implementation of N. Vock dmem cgroup GPU VRAM boost concept. Dynamically prioritizes VRAM for the focused window by writing to the kernel's dmem cgroup controller via Hyprland's event socket. Packaged as a clean Arch Linux PKGBUILD with automatic systemd setup.
 There is no reason why us Hyperland cannot join the KDE fun on this amazing work!
 
