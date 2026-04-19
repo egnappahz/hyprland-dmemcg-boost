@@ -1,0 +1,18 @@
+[Unit]
+Description=Hyprland dmem cgroup VRAM booster (instance %i)
+Documentation=https://github.com/egnappahz/hyprland-dmemcg-boost
+# Waits for the root setup to have run first
+After=dmemcg-setup.service
+
+[Service]
+Type=simple
+# %i is the HYPRLAND_INSTANCE_SIGNATURE passed at instantiation
+Environment="HYPRLAND_INSTANCE_SIGNATURE=%i"
+# Override boost size here if desired, e.g. via a drop-in
+Environment="DMEMCG_BOOST_SIZE=4G"
+ExecStart=/usr/lib/hyprland-dmemcg-boost/hyprland-dmemcg-boost.sh
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

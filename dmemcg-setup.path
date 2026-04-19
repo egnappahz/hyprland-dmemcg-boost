@@ -1,0 +1,11 @@
+[Unit]
+Description=Watch for new user cgroup slices to fix dmem permissions
+Documentation=https://github.com/egnappahz/hyprland-dmemcg-boost
+
+[Path]
+# Re-triggers dmemcg-setup.service whenever a user logs in
+# and systemd creates their user-NNNN.slice under user.slice
+PathChanged=/sys/fs/cgroup/user.slice
+
+[Install]
+WantedBy=multi-user.target

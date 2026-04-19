@@ -1,0 +1,13 @@
+[Unit]
+Description=Setup dmem cgroup permissions for active user slices
+Documentation=https://github.com/egnappahz/hyprland-dmemcg-boost
+After=systemd-logind.service local-fs.target
+Wants=systemd-logind.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/hyprland-dmemcg-boost/dmemcg-setup.sh
+# No RemainAfterExit so the path unit can re-trigger on new logins
+
+[Install]
+WantedBy=multi-user.target

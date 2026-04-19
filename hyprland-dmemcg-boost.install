@@ -1,0 +1,28 @@
+post_install() {
+    # Enable and start the system-level path watcher and setup service
+    systemctl daemon-reload
+    systemctl enable --now dmemcg-setup.path
+    systemctl enable --now dmemcg-setup.service
+
+    echo ""
+    echo "==== hyprland-dmemcg-boost ===="
+    echo "System services enabled. To start the per-user booster, add this to your"
+    echo "Hyprland config (hyprland.conf):"
+    echo ""
+    echo "  exec-once = systemctl --user start hyprland-dmemcg-boost@\$HYPRLAND_INSTANCE_SIGNATURE"
+    echo ""
+    echo "Or start it one time with systemd with this:"
+    echo "  systemctl --user start hyprland-dmemcg-boost@\$HYPRLAND_INSTANCE_SIGNATURE"
+    echo ""
+    echo "You can override the boost size with a drop-in or env var: DMEMCG_BOOST_SIZE=8G"
+}
+
+post_upgrade() {
+    systemctl daemon-reload
+    systemctl restart dmemcg-setup.service
+}
+
+pre_remove() {
+    systemctl disable --now dmemcg-setup.path || true
+    systemctl disable --now dmemcg-setup.service || true
+}
