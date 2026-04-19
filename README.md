@@ -1,7 +1,5 @@
 # hyprland-dmemcg-boost
 
-EDIT: this only works for regular apps, not for gaming. I'm still thinking about how to do this without gamescope and something more hyprland native!
-
 Hyprland implementation of N. Vock dmem cgroup GPU VRAM boost concept. Dynamically prioritizes VRAM for the focused window by writing to the kernel's dmem cgroup controller via Hyprland's event socket. Packaged as a clean Arch Linux PKGBUILD with automatic systemd setup.
 There is no reason why us Hyperland cannot join the KDE fun on this amazing work!
 
@@ -71,6 +69,40 @@ The boost size defaults to `4G`. Override it by editing the user service or sett
 # /etc/systemd/user/hyprland-dmemcg-boost@.service.d/override.conf
 [Service]
 Environment="DMEMCG_BOOST_SIZE=8G"
+```
+
+### Gaming
+
+For the booster to properly target a game and its entire process tree (Proton, Wine, pressure-vessel, etc.), the game needs to run inside its own cgroup scope.
+
+#### Heroic
+Use a wrapper script. Add the following to your wrapper and set it as the launcher wrapper in Heroic settings:
+
+```bash
+exec systemd-run --user --scope --slice=app.slice -- "$@"
+```
+
+#### Steam
+Add this to the individual game's launch options in Steam:
+
+```bash
+systemd-run --user --scope %command%
+```
+
+`%command%` is Steam's placeholder for the game command — this wraps the entire game and its Proton/Wine children into a clean cgroup scope that the booster can target.
+
+
+### Verification
+You can verify it worked after launch with:
+
+```bash
+systemctl --user status
+```
+
+Look for a `run-uXXXX.scope` entry under `app.slice` containing your game's processes. Then confirm the booster is targeting it by watching the logs while focusing the game window:
+
+```bash
+journalctl --user -fu hyprland-dmemcg-boost@$HYPRLAND_INSTANCE_SIGNATURE
 ```
 
 ---
