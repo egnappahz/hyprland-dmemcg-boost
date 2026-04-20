@@ -1,7 +1,7 @@
 # hyprland-dmemcg-boost
 
-Hyprland implementation of N. Vock dmem cgroup GPU VRAM boost concept. Dynamically prioritizes VRAM for the focused window by writing to the kernel's dmem cgroup controller via Hyprland's event socket. Packaged as a clean Arch Linux PKGBUILD with automatic systemd setup.
-There is no reason why us Hyperland cannot join the KDE fun on this amazing work!
+Hyprland implementation of [Natalie Vock's](https://pixelcluster.github.io/) dmem cgroup GPU VRAM boost concept. Dynamically prioritizes VRAM for the focused window by writing to the kernel's dmem cgroup controller via Hyprland's event socket. Packaged as a clean Arch Linux PKGBUILD with automatic systemd setup.
+There is no reason why us Hyprland cannot join the KDE fun on this amazing work!
 
 ---
 
@@ -18,6 +18,9 @@ The main booster script. Runs as your user via systemd. Connects to Hyprland's e
 
 ### `hyprland-dmemcg-boost@.service`
 Systemd **user** service that runs the booster script. Instantiated with your `$HYPRLAND_INSTANCE_SIGNATURE` so it connects to the correct Hyprland socket. Restarts automatically on failure.
+
+### `cgwrite.c`
+Small setuid root C helper that writes to cgroup files on behalf of the user. Replaces `sudo tee` entirely — no PAM sessions, no sudo overhead, just a direct write restricted to `/sys/fs/cgroup/` paths. Compiled at install time by the PKGBUILD.
 
 ### `dmemcg-setup.sh`
 Root helper script. Enables dmem at the root and `user.slice` cgroup levels, then recursively fixes ownership of all active user slices so the user service can write to them. Called by the system service below.
@@ -65,7 +68,7 @@ systemctl --user start hyprland-dmemcg-boost@$HYPRLAND_INSTANCE_SIGNATURE
 
 The boost size defaults to `4G`. Override it by editing the user service or setting `DMEMCG_BOOST_SIZE` in a drop-in:
 
-```bash
+```ini
 # /etc/systemd/user/hyprland-dmemcg-boost@.service.d/override.conf
 [Service]
 Environment="DMEMCG_BOOST_SIZE=8G"
@@ -85,14 +88,14 @@ exec systemd-run --user --scope --slice=app.slice -- "$@"
 #### Steam
 Add this to the individual game's launch options in Steam:
 
-```bash
+```
 systemd-run --user --scope %command%
 ```
 
 `%command%` is Steam's placeholder for the game command — this wraps the entire game and its Proton/Wine children into a clean cgroup scope that the booster can target.
 
-
 ### Verification
+
 You can verify it worked after launch with:
 
 ```bash
@@ -113,6 +116,7 @@ journalctl --user -fu hyprland-dmemcg-boost@$HYPRLAND_INSTANCE_SIGNATURE
 - `socat`
 - `jq`
 - `bash`
+- `gcc` *(build only)*
 
 ---
 
