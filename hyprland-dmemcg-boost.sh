@@ -44,7 +44,7 @@ socat -U - "UNIX-CONNECT:${XDG_RUNTIME_DIR}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/
         while [ "$curr" != "/sys/fs/cgroup" ]; do
             parent=$(dirname "$curr")
             if ! grep -q "dmem" "$parent/cgroup.subtree_control" 2>/dev/null; then
-                echo "+dmem" | sudo /usr/bin/tee "$parent/cgroup.subtree_control" > /dev/null
+                echo "+dmem" | /usr/lib/hyprland-dmemcg-boost/cgwrite "$parent/cgroup.subtree_control"
             fi
             curr="$parent"
         done
@@ -52,7 +52,7 @@ socat -U - "UNIX-CONNECT:${XDG_RUNTIME_DIR}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/
         # --- THE CRITICAL WRITE ---
         if [ -f "$CGROUP_FULL/dmem.low" ]; then
             echo "Applying Boost: PID=$PID -> $CGROUP_RELATIVE"
-            echo "$DRM_RESOURCE $BYTES" | sudo /usr/bin/tee "$CGROUP_FULL/dmem.low" > /dev/null
+            echo "$DRM_RESOURCE $BYTES" | /usr/lib/hyprland-dmemcg-boost/cgwrite "$CGROUP_FULL/dmem.low"
         fi
     fi
 done
