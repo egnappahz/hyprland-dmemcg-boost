@@ -19,6 +19,8 @@ echo "Targeting GPU Resource: $DRM_RESOURCE"
 echo "Boost set to: $BOOST_SIZE ($BYTES bytes)"
 
 # --- THE HYPRLAND EVENT LOOP ---
+LAST_CGROUP=""
+
 socat -U - "UNIX-CONNECT:${XDG_RUNTIME_DIR}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket2.sock" \
 | while read -r line; do
     if [[ $line == activewindow* ]]; then
@@ -32,6 +34,10 @@ socat -U - "UNIX-CONNECT:${XDG_RUNTIME_DIR}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/
         CGROUP_FULL="/sys/fs/cgroup${CGROUP_RELATIVE}"
 
         if [ ! -d "$CGROUP_FULL" ]; then continue; fi
+
+        # --- DEBOUNCE: skip if cgroup hasn't changed ---
+        if [ "$CGROUP_FULL" == "$LAST_CGROUP" ]; then continue; fi
+        LAST_CGROUP="$CGROUP_FULL"
 
         # --- RECURSIVE SUBTREE ENABLEMENT ---
         curr="$CGROUP_FULL"
