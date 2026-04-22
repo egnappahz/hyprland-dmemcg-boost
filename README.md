@@ -1,7 +1,7 @@
 # hyprland-dmemcg-boost
 
 Hyprland implementation of [Natalie Vock's](https://pixelcluster.github.io/) dmem cgroup GPU VRAM boost concept. Dynamically prioritizes VRAM for the focused window by writing to the kernel's dmem cgroup controller via Hyprland's event socket. Packaged as a clean Arch Linux PKGBUILD with automatic systemd setup.
-There is no reason why us Hyprland cannot join the KDE fun on this amazing work!
+There is no reason why us Hyprland users cannot join the KDE fun on this amazing work!
 
 ---
 
