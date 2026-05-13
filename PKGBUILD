@@ -1,7 +1,7 @@
 # Maintainer: spark <spark@eieren>
 pkgname=hyprland-dmemcg-boost
 pkgver=1.0.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Dynamic dmem cgroup GPU VRAM boost for focused windows under Hyprland"
 arch=('x86_64')
 url="https://github.com/egnappahz/hyprland-dmemcg-boost"
