@@ -2,8 +2,6 @@
 # dmemcg-setup.sh — runs as root, enables dmem and fixes user slice ownership
 # Called by dmemcg-setup.service (triggered at boot and on login via path unit)
 
-set -euo pipefail
-
 # Step 1: Enable dmem at the root cgroup level
 # (tmpfiles.d also does this, but belt-and-suspenders for timing)
 echo "+dmem" > /sys/fs/cgroup/cgroup.subtree_control || true
@@ -19,6 +17,7 @@ for slice_dir in /sys/fs/cgroup/user.slice/user-*.slice; do
 
     uid=$(basename "$slice_dir" | grep -oP '(?<=user-)\d+(?=\.slice)')
     [ -z "$uid" ] && continue
+    [ "$uid" -eq 0 ] && continue  # skip root
 
     username=$(id -nu "$uid" 2>/dev/null) || {
         echo "dmemcg-setup: no user found for uid=$uid, skipping"
@@ -26,6 +25,6 @@ for slice_dir in /sys/fs/cgroup/user.slice/user-*.slice; do
     }
 
     # Recursively chown the entire slice subtree
-    chown -R "${username}:${username}" "$slice_dir"
+    chown -R "${username}:${username}" "$slice_dir" 2>/dev/null || true
     echo "dmemcg-setup: ownership fixed for uid=$uid ($username) on $slice_dir"
 done
